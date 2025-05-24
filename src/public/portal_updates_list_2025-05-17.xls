@@ -1,0 +1,11 @@
+<table border="1" cellpadding="4" cellspacing="0" width="100%" style="border-collapse: collapse; font-size: 12px; font-family: arial; text-align: left;">
+		<tr style="font-size: 12px; font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0);">
+			<td width="10%">CATEGORY</td>
+			<td width="10%">EMAIL</td>
+			<td width="10%">SUBMITTED BY</td>
+			<td width="10%">DESCRIPTION</td>
+			<td width="10%">DATE ADDED</td>
+			<td width="10%">DATE MODIFIED</td>
+			<td width="10%">PRIORITY</td>
+			<td width="10%">STATUS</td>
+		</tr></table>
