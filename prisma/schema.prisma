@@ -1985,35 +1985,3 @@ model ur_volunteer_profile_institutions {
   institution_name String @db.VarChar(64)
   status           Int    @default(1) @db.TinyInt
 }
-
-model user {
-  id           Int         @id @default(autoincrement()) @map("id") @db.UnsignedMediumInt
-  user_name    String      @unique
-  email        String      @unique
-  mobile       String?
-  name         String?
-  isSuperAdmin Boolean     @default(false)
-  password     String      @db.VarChar(255)
-  roles        role[]      @relation("user_roles")
-  user_role    user_role[]
-
-  @@index([id], map: "user_id_idx") // Optional: keep your indexes organized
-}
-
-model role {
-  id           Int         @id @default(autoincrement()) @db.UnsignedMediumInt
-  name         String      @unique
-  permissions  Json?
-  redirect_url String
-  users        user[]      @relation("user_roles")
-  user_role    user_role[]
-}
-
-model user_role {
-  userId Int  @db.UnsignedMediumInt
-  roleId Int  @db.UnsignedMediumInt
-  user   user @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role   role @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@id([userId, roleId])
-}
