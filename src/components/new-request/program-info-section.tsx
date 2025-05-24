@@ -175,9 +175,9 @@ const ProgramInfoSection: React.FC<ProgramInfoSectionProps> = ({
               }))
             }
           />
-          {/* {errors.numberofAttendences && (
-            <p className="text-red-500 text-sm">{errors.numberofAttendences}</p>
-          )} */}
+          {formData.numberofAttendences > 3 && (
+            <p className="text-red-500 text-sm">Maximum 3 attendees allowed</p>
+          )}
         </div>
 
         {/* Submitted By */}
