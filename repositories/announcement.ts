@@ -22,9 +22,9 @@ import {
   getPortfoliosCategories,
   getTranslators,
 } from "./common_function";
-import { sendErrorResponse } from "@/utils/sendErrorResponse";
-import { user } from "@prisma/client";
-import { number } from "joi";
+// import { sendErrorResponse } from "@/utils/sendErrorResponse";
+// import { user } from "@prisma/client";
+// import { number } from "joi";
 import { email_send } from "@/utils/senEmail";
 import { uploadMultipleFilesToS3 } from "@/utils/s3client";
 import { NextRequest } from "next/server";
