@@ -10,7 +10,7 @@ export async function create_role(input: CreateRoleInput) {
   const role = await prisma.ur_admin_role.create({
     data: {
       role_name,
-      date_added
+      date_added,
     },
   });
 
@@ -24,13 +24,13 @@ interface UpdateRoleInput {
 }
 
 export async function update_role(input: UpdateRoleInput) {
-  const { id, role_name , date_added  } = input;
-  console.log(id, "---- Role Id ---------------")
+  const { id, role_name, date_added } = input;
+  console.log(id, "---- Role Id ---------------");
   const role = await prisma.ur_admin_role.update({
-    where: { admin_role_id :  id},
+    where: { admin_role_id: id },
     data: {
       role_name,
-      date_added
+      date_added,
     },
   });
 
@@ -45,7 +45,7 @@ export async function delete_role(input: IdRoleInput) {
   const { id } = input;
 
   const deletedRole = await prisma.ur_admin_role.delete({
-    where: { admin_role_id : id },
+    where: { admin_role_id: id },
   });
 
   return deletedRole;
@@ -54,7 +54,7 @@ export async function delete_role(input: IdRoleInput) {
 export async function find_role(input: IdRoleInput) {
   const { id } = input;
   const role = await prisma.ur_admin_role.findUnique({
-    where: { admin_role_id : id },
+    where: { admin_role_id: id },
   });
 
   return role;
@@ -74,12 +74,11 @@ export async function get_all_role(input: GetRolesInput) {
       skip,
       take: take,
     }),
-    prisma.role.count({ where: where }),
+    prisma.ur_admin_role.count({ where: where }),
   ]);
 
   return { roles, total };
 }
-
 
 interface name_check {
   role_name: string;
