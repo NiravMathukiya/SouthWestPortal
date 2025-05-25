@@ -200,10 +200,12 @@ export default function NewsletterSection({
             }`}
           >
             <option value="">Select Type</option>
-            <option value="article">Article</option>
-            <option value="announcement">Announcement</option>
-            <option value="event">Event</option>
-            <option value="news">News</option>
+            <option value="Event Marketing">Event Marketing</option>
+            <option value="Post-Event Update">Post-Event Update</option>
+            <option value="General News">General News</option>
+            <option value="Faith Based">Faith Based</option>
+            <option value="Educational Info">Educational Info</option>
+            <option value="Other">Other</option>
           </select>
           {errors?.ismailitypeSubmission && (
             <p className="text-red-500 text-sm mt-1">

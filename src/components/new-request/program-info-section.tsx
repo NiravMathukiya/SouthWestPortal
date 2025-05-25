@@ -100,7 +100,6 @@ const ProgramInfoSection: React.FC<ProgramInfoSectionProps> = ({
           </select>
         </div>
 
-
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium mb-1">
@@ -109,8 +108,9 @@ const ProgramInfoSection: React.FC<ProgramInfoSectionProps> = ({
           <input
             id="email"
             type="email"
-            className={`w-full border p-2 rounded ${formData.email === "" ? "border-gray-300" : "border-green-500"
-              }`}
+            className={`w-full border p-2 rounded ${
+              formData.email === "" ? "border-gray-300" : "border-green-500"
+            }`}
             value={formData.email}
             onChange={(e) =>
               setFormData((prev) => ({
@@ -163,11 +163,17 @@ const ProgramInfoSection: React.FC<ProgramInfoSectionProps> = ({
             type="number"
             min="0"
             step="1"
-            className={`w-full border p-2 rounded ${formData.numberofAttendences < 0
-              ? "border-red-500"
-              : "border-gray-300"
-              }`}
-            value={formData.numberofAttendences || ""}
+            className={`w-full border p-2 rounded ${
+              formData.numberofAttendences < 0
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
+            value={
+              formData.numberofAttendences !== null &&
+              formData.numberofAttendences !== undefined
+                ? formData.numberofAttendences
+                : ""
+            }
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
@@ -534,10 +540,10 @@ const ProgramInfoSection: React.FC<ProgramInfoSectionProps> = ({
         {formData.personInfoImages.some(
           (file) => !file.type.startsWith("image/")
         ) && (
-            <p className="text-red-500 text-sm mt-2">
-              Only image files are allowed
-            </p>
-          )}
+          <p className="text-red-500 text-sm mt-2">
+            Only image files are allowed
+          </p>
+        )}
       </div>
     </div>
   );

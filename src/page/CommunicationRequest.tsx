@@ -2,7 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import SideBarWrapper from "@/layouts/SidebarWrapper";
-import { ChevronDown, ChevronUp, Trash2, Pencil } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+  Pencil,
+  Paperclip,
+} from "lucide-react";
 import FilterComponent from "@/components/AnnouncementsFilterComponent";
 // import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
@@ -22,7 +28,14 @@ type CommunicationRequest = {
   programDate: string;
   dateAdded: string;
   status: string;
+  files: FileData[];
 };
+
+interface FileData {
+  new_filename: string;
+  real_filename: string;
+}
+
 
 type FilterParams = {
   portfolioMember?: string;
@@ -45,7 +58,7 @@ const CommunicationRequest: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [filterParams, setFilterParams] = useState<FilterParams>({});
 
-  const router = useRouter()
+  const router = useRouter();
   const fetchData = async (page: number = 1, filters: FilterParams = {}) => {
     setLoading(true);
     try {
@@ -53,6 +66,7 @@ const CommunicationRequest: React.FC = () => {
       const params = new URLSearchParams();
       params.append("page", page.toString());
       params.append("limit", itemsPerPage.toString());
+      // console.log(filters);
 
       // Add filter parameters
       if (filters.portfolioMember) {
@@ -82,7 +96,7 @@ const CommunicationRequest: React.FC = () => {
 
       const res = await axios.get(`/api/announcement?${params.toString()}`);
       const responseData = res.data;
-      console.log(responseData.data.data);
+      // console.log(responseData.data.data);
       if (responseData.success) {
         setData(responseData.data.data.results);
         setCurrentPage(responseData.data.pagination.pageNum);
@@ -111,18 +125,13 @@ const CommunicationRequest: React.FC = () => {
 
   const onFilterSubmit = async (filters: FilterParams) => {
     // Convert Jamatkhanas array into a single encoded string
-    if (filters.Jamatkhanas && Array.isArray(filters.Jamatkhanas)) {
-      const encodedString = encodeURIComponent(filters.Jamatkhanas.join(','));
-      filters.Jamatkhanas = [encodedString]; // Set the encoded string as the only array element
-    }
 
-    console.log(filters);
+    // console.log(filters);
     setFilterParams(filters);
     setCurrentPage(1);
     await fetchData(1, filters);
     setIsFilterOpen(false);
   };
-
 
   // const handleResetFilters = async () => {
   //   setFilterParams({});
@@ -131,6 +140,7 @@ const CommunicationRequest: React.FC = () => {
   //   setIsFilterOpen(false);
   // };
 
+  // console.log(selectedIds);
   const handleDelete = async () => {
     if (selectedIds.length === 0) return;
 
@@ -173,9 +183,12 @@ const CommunicationRequest: React.FC = () => {
         }
       });
 
-      const res = await axios.get(`/api/announcements/export/excel?${params.toString()}`, {
-        responseType: "blob",
-      });
+      const res = await axios.get(
+        `/api/announcements/export/excel?${params.toString()}`,
+        {
+          responseType: "blob",
+        }
+      );
 
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
@@ -206,9 +219,12 @@ const CommunicationRequest: React.FC = () => {
         }
       });
 
-      const res = await axios.get(`/api/announcements/export/pdf?${params.toString()}`, {
-        responseType: "blob",
-      });
+      const res = await axios.get(
+        `/api/announcements/export/pdf?${params.toString()}`,
+        {
+          responseType: "blob",
+        }
+      );
 
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
@@ -233,7 +249,7 @@ const CommunicationRequest: React.FC = () => {
     {
       accessorKey: "committee",
       header: "Jamatkhanas",
-      cell: (info) => info.getValue() as string
+      cell: (info) => info.getValue() as string,
     },
     {
       accessorKey: "program",
@@ -260,46 +276,101 @@ const CommunicationRequest: React.FC = () => {
       header: "Status",
       cell: (info) => {
         const status = info.getValue() as number;
-        let statusClass = "";
-        switch (status) {
-          case 1:
-            statusClass = "bg-green-100 text-green-800";
-            break;
-          case 0:
-            statusClass = "bg-red-100 text-red-800";
-            break;
-          default:
-            statusClass = "bg-gray-100 text-gray-800";
-        }
+        // let statusClass = "";
+        // switch (status) {
+        //   case 1:
+        //     statusClass = "bg-green-100 text-green-800";
+        //     break;
+        //   default:
+        //     statusClass = "bg-red-100 text-black";
+        // }
         return (
-          <span className={`px-2 py-1 rounded text-sm ${statusClass}`}>
+          <span
+            className={`px-2 py-1 rounded text-sm ${
+              status ? "bg-green-500 text-green-900" : "bg-red-500 text-black"
+            }`}
+          >
             {status ? "Enable" : "Disable"}
           </span>
         );
       },
     },
+    // {
+    //   accessorKey: "files",
+    //   header: "Attachments",
+    //   cell: ({ row }) => {
+    //     const files = row.original.files;
+
+    //     if (!files || files.length === 0) {
+    //       return null;
+    //     }
+
+    //     const handleDownload = (file: FileData) => {
+    //       const downloadUrl = `/uploads/${file.new_filename}`;
+    //       const link = document.createElement("a");
+    //       link.href = downloadUrl;
+    //       link.download = file.real_filename;
+    //       document.body.appendChild(link);
+    //       link.click();
+    //       document.body.removeChild(link);
+    //     };
+
+    //     return (
+         
+    //     );
+    //   },
+    // },
     {
       accessorKey: "form_id",
       header: "Edit",
-      cell: (info) => (
-        <button
-          className="text-yellow-600 underline p-1 bg-blue-500 hover:bg-blue-600 rounded"
+      cell: (info) => {
+        const files = info.row.original.files;
 
-          onClick={() => {
-            // console.log(Number(info.row.id))
-            router.push(`/admin/announcements/${Number(info.row.id)}`)
-          }}
-          aria-label="Delete record"
-        >
-          <Pencil className="text-white w-5 h-5" />
-        </button>
+        if (!files || files.length === 0) {
+          return null;
+        }
+
+        const handleDownload = (file: FileData) => {
+          const downloadUrl = `/uploads/${file.new_filename}`;
+          const link = document.createElement("a");
+          link.href = downloadUrl;
+          link.download = file.real_filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        };
+
+        return (
+          <div className="flex gap-2 ">
+            {/* {data.length > 0 && <Paperclip></Paperclip>} */}
+            <div className="flex items-center">
+            <Paperclip
+              className="h-5 w-5 text-gray-500 cursor-pointer"
+              onClick={() => handleDownload(files[0])}
+            />
+            {files.length > 1 && (
+              <span className="ml-1 text-xs">+{files.length - 1}</span>
+            )}
+          </div>
+            <button
+              className="text-yellow-600 underline p-1 bg-blue-500 hover:bg-blue-600 rounded"
+              onClick={() => {
+                // console.log(Number(info.row.id))
+                router.push(`/admin/announcements/${Number(info.row.id)}`);
+              }}
+              aria-label="Delete record"
+            >
+              <Pencil className="text-white w-5 h-5" />
+            </button>
+          </div>
+        );
         // <Link
         //   href={`/admin/announcements/${info.getValue()}`}
         //   className="text-yellow-600 underline "
         // >
         //   <Pencil className=" w-5 h-5 p-1 rounded bg-yellow-500 scale-150" />
         // </Link>
-      ),
+      },
     },
     {
       id: "form_id",
@@ -381,15 +452,30 @@ const CommunicationRequest: React.FC = () => {
         <div className="flex-1 pb-4">
           <div className="overflow-x-scroll">
             {loading ? (
-              <SkeletonTable rowCount={5} rowHeight="h-4" rowWidths={["w-1/6", "w-1/6", "w-1/6", "w-1/6", "w-1/6", "w-1/6"]} />
+              <SkeletonTable
+                rowCount={5}
+                rowHeight="h-4"
+                rowWidths={[
+                  "w-1/6",
+                  "w-1/6",
+                  "w-1/6",
+                  "w-1/6",
+                  "w-1/6",
+                  "w-1/6",
+                ]}
+              />
             ) : (
               <DynamicTable<CommunicationRequest>
                 columns={communicationRequestColumns}
                 data={data}
                 totalPages={totalPages}
                 currentPage={currentPage}
-                onNextPage={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                onPrevPage={() => handlePageChange(Math.max(currentPage - 1, 1))}
+                onNextPage={() =>
+                  handlePageChange(Math.min(currentPage + 1, totalPages))
+                }
+                onPrevPage={() =>
+                  handlePageChange(Math.max(currentPage - 1, 1))
+                }
                 selectedIds={selectedIds}
                 setSelectedIds={setSelectedIds}
                 getRowId={(row) => row.form_id}

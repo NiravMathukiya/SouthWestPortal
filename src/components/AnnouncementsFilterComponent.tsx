@@ -1,58 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Portfolio } from "@/types/form-types";
+import { Facility } from "./new-request/jamatkhana-section";
 
 interface FilterProps {
   isFilterOpen: boolean;
   onSubmitFilter: (filters: any) => void;
-  // onResetFilters: () => void;
   initialValues: any;
 }
 
-const portfolioOptions = [
-  { value: "all", label: "All" },
-  {
-    value: "Ismaili Professional Network (IPN)",
-    label: "Ismaili Professional Network (IPN)",
-  },
-  { value: "AKHB", label: "AKHB" },
-  { value: "Local Announcements", label: "Local Announcements" },
-  { value: "Program", label: "Program" },
-  { value: "Mental Health", label: "Mental Health" },
-];
+const facilityTypeLabels: Record<number, string> = {
+  1: "ACST",
+  2: "ACCT",
+  3: "DISTRICT",
+  4: "GREATER HOUSTON",
+};
 
 const statusOptions = [
   { value: "1", label: "Approved" },
   { value: "0", label: "Rejected" },
 ];
 
-const jamatkhanas = [
-  { group: "ACST", items: ["Corpus Christi", "San Antonio"] },
-  { group: "DISTRICT", items: ["Beaumont"] },
-  {
-    group: "ACCT",
-    items: [
-      "College Station",
-      "Austin",
-      "Austin Downtown",
-      "Austin South",
-      "Clear Lake",
-    ],
-  },
-  {
-    group: "GREATER HOUSTON",
-    items: [
-      "Headquarters",
-      "Katy",
-      "Principal",
-      "Sugar Land",
-      "Spring",
-      "Harvest Green",
-    ],
-  },
-];
 const FilterComponent: React.FC<FilterProps> = ({
   isFilterOpen,
-  // onResetFilters,
   onSubmitFilter,
 }) => {
   const [filters, setFilters] = useState({
@@ -65,39 +37,99 @@ const FilterComponent: React.FC<FilterProps> = ({
     status: "",
     Jamatkhanas: [] as string[],
   });
-
-  const [isPortfolioDropdownOpen, setIsPortfolioDropdownOpen] = useState(false);
+  const [portfoliogroups, setPortfoliogroups] = useState<Portfolio[]>([]);
+  const [facilities, setFacilities] = useState<Facility[]>([]);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
 
+  useEffect(() => {
+    const fetchAnnouncementData = async () => {
+      try {
+        const response = await axios.get("/api/announcement?data_get=true");
+        setPortfoliogroups(
+          response.data.data.portalupdates.booking_portfolios_group
+        );
+        setFacilities(response.data.data.portalupdates.facilities);
+      } catch (err) {
+        toast.error("Failed to fetch announcement data");
+        console.error("Error fetching data:", err);
+      }
+    };
+
+    fetchAnnouncementData();
+  }, []);
+
+  // Helper function to parse facility labels
+  const parseFacilityLabel = (item: string): string => {
+    const [oldLabel] = item.split(":").map((str) => str.trim());
+    if (!oldLabel) return "";
+
+    // Remove any encoding if present
+    const decodedLabel = decodeURIComponent(oldLabel);
+
+    // Handle the label format
+    const parts = decodedLabel.split(" ");
+    return parts.length === 1 ? parts[0] : parts[0] + parts[1];
+  };
+
+  // Get all facility labels as an array
+  const getAllFacilityLabels = (): string[] => {
+    return facilities.flatMap((group) => {
+      return group.booking_address
+        .split(",")
+        .map(parseFacilityLabel)
+        .filter((label) => label); // Filter out empty strings
+    });
+  };
+
   // Toggle single Jamatkhana
-  const toggleJamatkhana = (name: string) => {
+  const toggleJamatkhana = (label: string) => {
     setFilters((prev) => {
-      const alreadySelected = prev.Jamatkhanas.includes(name);
+      const alreadySelected = prev.Jamatkhanas.includes(label);
       const updated = alreadySelected
-        ? prev.Jamatkhanas.filter((item) => item !== name)
-        : [...prev.Jamatkhanas, name];
+        ? prev.Jamatkhanas.filter((item) => item !== label)
+        : [...prev.Jamatkhanas, label];
       return { ...prev, Jamatkhanas: updated };
     });
   };
 
-  // Toggle entire group
-  const toggleJamatkhanaGroup = (groupName: string, select: boolean) => {
-    const group = jamatkhanas.find((g) => g.group === groupName);
-    if (!group) return;
+  // Select all facilities in a group
+  const handleSelectAllGroup = (group: Facility) => {
+    const labels = group.booking_address
+      .split(",")
+      .map(parseFacilityLabel)
+      .filter((label) => label);
 
     setFilters((prev) => {
-      const currentSet = new Set(prev.Jamatkhanas);
-      group.items.forEach((item) =>
-        select ? currentSet.add(item) : currentSet.delete(item)
+      // Remove any existing labels from this group first to avoid duplicates
+      const filtered = prev.Jamatkhanas.filter(
+        (label) => !labels.includes(label)
       );
-      return { ...prev, Jamatkhanas: Array.from(currentSet) };
+      return { ...prev, Jamatkhanas: [...filtered, ...labels] };
     });
   };
 
-  // Select/unselect all
-  const toggleAllJamatkhanas = (select: boolean) => {
-    const allItems = jamatkhanas.flatMap((g) => g.items);
-    setFilters((prev) => ({ ...prev, Jamatkhanas: select ? allItems : [] }));
+  // Unselect all facilities in a group
+  const handleUnselectAllGroup = (group: Facility) => {
+    const labels = group.booking_address
+      .split(",")
+      .map(parseFacilityLabel)
+      .filter((label) => label);
+
+    setFilters((prev) => ({
+      ...prev,
+      Jamatkhanas: prev.Jamatkhanas.filter((label) => !labels.includes(label)),
+    }));
+  };
+
+  // Select all facilities
+  const selectAllFacilities = () => {
+    const allLabels = getAllFacilityLabels();
+    setFilters((prev) => ({ ...prev, Jamatkhanas: allLabels }));
+  };
+
+  // Unselect all facilities
+  const unselectAllFacilities = () => {
+    setFilters((prev) => ({ ...prev, Jamatkhanas: [] }));
   };
 
   // Reset filters
@@ -115,55 +147,128 @@ const FilterComponent: React.FC<FilterProps> = ({
     onSubmitFilter({});
   };
 
+  // Handle form submission
+  // const handleSubmit = () => {
+  //   // Ensure Jamatkhanas is always an array of strings
+  //   const submissionData = {
+  //     ...filters,
+  //     Jamatkhanas: Array.isArray(filters.Jamatkhanas)
+  //       ? filters.Jamatkhanas
+  //       : [filters.Jamatkhanas],
+  //   };
+  //   onSubmitFilter(submissionData);
+  // };
+
+  // Render facility checkboxes
+  const renderFacilityCheckboxes = () => {
+    return facilities.map((group, index) => {
+      const addresses = group.booking_address
+        .split(",")
+        .map((item: string) => {
+          const label = parseFacilityLabel(item);
+          return { id: item.split(":")[0].trim(), label };
+        })
+        .filter(({ label }) => label); // Filter out invalid entries
+
+      return (
+        <div key={index} className="mb-6">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="font-semibold text-sm">
+              {facilityTypeLabels[group?.facility_type] ||
+                `Facility Group ${group?.facility_type}`}
+            </h4>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="text-xs text-blue-600 hover:underline"
+                onClick={() => handleSelectAllGroup(group)}
+              >
+                Select All
+              </button>
+              <button
+                type="button"
+                className="text-xs text-blue-600 hover:underline"
+                onClick={() => handleUnselectAllGroup(group)}
+              >
+                Unselect All
+              </button>
+            </div>
+          </div>
+
+          <div className="border border-gray-300 rounded p-3">
+            <div className="grid grid-cols-2 gap-2">
+              {addresses.map(({ id, label }) => (
+                <div key={id} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id={`jamatkhanas-${id}`}
+                    className="cursor-pointer"
+                    checked={filters.Jamatkhanas.includes(label)}
+                    onChange={() => toggleJamatkhana(label)}
+                  />
+                  <label
+                    htmlFor={`jamatkhanas-${id}`}
+                    className="cursor-pointer text-sm"
+                  >
+                    {label}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    });
+  };
+
   return (
     <div
-      className={`border-t border-gray-200 transition-all duration-300 ${isFilterOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-        }`}
+      className={`border-t border-gray-200 transition-all duration-300 ${
+        isFilterOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+      }`}
     >
       <div className="p-4 bg-gray-50">
         <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           {/* Portfolio Dropdown */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Portfolio/Board/Member
-            </label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() =>
-                  setIsPortfolioDropdownOpen(!isPortfolioDropdownOpen)
-                }
-                className="w-full px-3 py-2 text-left border border-gray-300 rounded-md bg-white flex justify-between items-center"
-              >
-                <span className="text-sm">
-                  {filters.portfolioMember
-                    ? portfolioOptions.find(
-                      (o) => o.value === filters.portfolioMember
-                    )?.label
-                    : "Select..."}
-                </span>
-                <ChevronDown size={16} />
-              </button>
-              {isPortfolioDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
-                  {portfolioOptions.map((option) => (
-                    <div
-                      key={option.value}
-                      className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                      onClick={() => {
-                        setFilters({
-                          ...filters,
-                          portfolioMember: option.value,
-                        });
-                        setIsPortfolioDropdownOpen(false);
-                      }}
-                    >
-                      {option.label}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          <div className="md:mt-6">
+            <select
+              id="portfolio"
+              className="w-full border p-2 rounded border-gray-300"
+              value={filters.portfolioMember || ""}
+              onChange={(e) => {
+                setFilters((prev) => ({
+                  ...prev,
+                  portfolioMember: e.target.value,
+                }));
+              }}
+            >
+              <option value="">Select a portfolio/member</option>
+              {portfoliogroups.map((group, index) => {
+                const portfolioItems = group.portfolio_list.split(",");
+
+                return group.ref_category ? (
+                  <optgroup key={index} label={group.ref_category || "General"}>
+                    {portfolioItems.map((item) => {
+                      const [id, label] = item.split(":");
+                      return (
+                        <option key={id.trim()} value={label.trim()}>
+                          {label.trim()}
+                        </option>
+                      );
+                    })}
+                  </optgroup>
+                ) : (
+                  portfolioItems.map((item) => {
+                    const [id, label] = item.split(":");
+                    return (
+                      <option key={id.trim()} value={id.trim()}>
+                        {label.trim()}
+                      </option>
+                    );
+                  })
+                );
+              })}
+            </select>
           </div>
 
           {/* Date, Email, Program Fields */}
@@ -251,7 +356,7 @@ const FilterComponent: React.FC<FilterProps> = ({
                 <span className="text-sm">
                   {filters.status
                     ? statusOptions.find((o) => o.value === filters.status)
-                      ?.label
+                        ?.label
                     : "Select status..."}
                 </span>
                 <ChevronDown size={16} />
@@ -277,55 +382,29 @@ const FilterComponent: React.FC<FilterProps> = ({
 
           {/* Jamatkhana Grouped Checkbox */}
           <div className="col-span-full">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Jamatkhanas
-            </label>
-            <div className="border rounded-md grid md:grid-cols-2 gap-2 p-4">
-              {jamatkhanas.map((group, gi) => (
-                <div key={gi} className="mb-4 border p-2">
-                  <div className="font-medium mb-2">{group.group}</div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                    {group.items.map((item, ii) => (
-                      <label key={ii} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={filters.Jamatkhanas.includes(item)}
-                          onChange={() => toggleJamatkhana(item)}
-                          className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                        />
-                        <span className="text-sm">{item}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div className="mt-2 flex justify-center text-xs text-blue-600">
-                    <button
-                      onClick={() => toggleJamatkhanaGroup(group.group, true)}
-                      className="mr-2 hover:underline border px-2 py-1"
-                    >
-                      Select All
-                    </button>
-                    <button
-                      onClick={() => toggleJamatkhanaGroup(group.group, false)}
-                      className="hover:underline border px-2 py-1"
-                    >
-                      Unselect All
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <div className="mt-4 text-xs text-blue-600 flex justify-center col-span-full">
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Jamatkhanas
+              </label>
+              <div className="flex gap-2">
                 <button
-                  onClick={() => toggleAllJamatkhanas(true)}
-                  className="mr-4 hover:underline"
+                  onClick={selectAllFacilities}
+                  className="text-sm text-blue-600 hover:underline border px-2 py-1 rounded"
                 >
                   Select All
                 </button>
                 <button
-                  onClick={() => toggleAllJamatkhanas(false)}
-                  className="hover:underline"
+                  onClick={unselectAllFacilities}
+                  className="text-sm text-blue-600 hover:underline border px-2 py-1 rounded"
                 >
                   Unselect All
                 </button>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded shadow">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {renderFacilityCheckboxes()}
               </div>
             </div>
           </div>

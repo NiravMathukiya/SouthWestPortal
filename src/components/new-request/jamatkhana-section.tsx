@@ -60,7 +60,9 @@ const JamatkhanaSection: FC<JamatkhanaSectionProps> = ({
             const addresses = group?.booking_address
               .split(",")
               .map((item: string) => {
-                const [id, label] = item.split(":").map((str) => str.trim());
+                const [id, Oldlabel] = item.split(":").map((str) => str.trim());
+                const Newlabel = Oldlabel?.split(" ").length === 1 ? Oldlabel?.split(" ")[0].toString() : (Oldlabel.split(" ")[0] + Oldlabel?.split(" ")[1]).toString();
+                const label = Newlabel
                 return { id, label };
               });
 

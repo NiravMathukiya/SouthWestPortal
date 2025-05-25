@@ -25,7 +25,7 @@ const Form = () => {
     socialMedia: false,
     other: false,
     channel: [],
-    portfolio: { id: "", ref_category: "", portfolio_list: "" },
+    portfolio: { id: "", ref_category: "", portfolio_list: "", label: "" },
     submmitby: "",
     phoneno: "",
     email: "",
@@ -55,33 +55,25 @@ const Form = () => {
     jamatkhanascomment: "",
   });
 
-  // interface FormErrors {
-  //   [key: string]: string | { [key: string]: string };
-  // }
-
   const [venues, setVenues] = useState<string[]>([]);
   const [portfoliogroups, setPortfoliogroups] = useState<Portfolio[]>([]);
   const [jamatkhanas, setJamatkhanas] = useState<Facility[]>([]);
-  // const [isLoading, setIsLoading] = useState(true);
-  // // const [errors, setErrors] = useState<Record<string, string>>({});
-  // const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  // const [shouldValidate, setShouldValidate] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchAnnouncementData = async () => {
       try {
         const response = await axios.get("/api/announcement?data_get=true");
-
         setVenues(response.data.data.portalupdates.addressNames);
         setPortfoliogroups(
           response.data.data.portalupdates.booking_portfolios_group
         );
         setJamatkhanas(response.data.data.portalupdates.facilities);
-        // setIsLoading(false);
       } catch (err) {
         toast.error("Failed to fetch announcement data");
-        // setIsLoading(false);
         console.error("Error fetching data:", err);
+      } finally {
+        setIsLoading(false); // Set loading to false when done
       }
     };
 
@@ -135,15 +127,15 @@ const Form = () => {
     January: "01",
     February: "02",
     March: "03",
-    April: '04',
+    April: "04",
     May: "05",
     June: "06",
-    July: '07',
+    July: "07",
     August: "08",
     September: "09",
     October: "10",
     November: "11",
-    December: "12"
+    December: "12",
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -202,15 +194,23 @@ const Form = () => {
       formDataObj.append("ismaili_insight_txtDate2", formData.ismailiendDate);
       // formDataObj.append("type_of_submission", formData.ismailitypeSubmission);
       formDataObj.append("submission_title", formData.ismailititle);
-      formDataObj.append(
-        "type_of_submission",
-        formData.ismailitypeSubmission
-      );
-      console.log(monthMap[formData.dateOfAnnocument.month] + "this is upper ")
-      const dateOfAnnocumenttemp = formData.dateOfAnnocument.year + "-" + monthMap[formData.dateOfAnnocument.month] + "-" + formData.dateOfAnnocument.day;
+      formDataObj.append("type_of_submission", formData.ismailitypeSubmission);
+      console.log(monthMap[formData.dateOfAnnocument.month] + "this is upper ");
+      const dateOfAnnocumenttemp =
+        formData.dateOfAnnocument.year +
+        "-" +
+        monthMap[formData.dateOfAnnocument.month] +
+        "-" +
+        formData.dateOfAnnocument.day;
       formDataObj.append("txtDate1", dateOfAnnocumenttemp);
-      formDataObj.append("ismaili_insight_short_text", formData.ismailishoettext);
-      formDataObj.append("ismaili_insight_other_inststructions", formData.ismailiInstraction);
+      formDataObj.append(
+        "ismaili_insight_short_text",
+        formData.ismailishoettext
+      );
+      formDataObj.append(
+        "ismaili_insight_other_inststructions",
+        formData.ismailiInstraction
+      );
       formDataObj.append("txtComments", formData.jamatkhanascomment);
 
       formDataObj.append("ref_portfolio_cat", formData.portfolio.ref_category);
@@ -221,7 +221,7 @@ const Form = () => {
       // formData.programVenue.forEach((item) =>
       // );
 
-      formDataObj.append("chkCommittee", formData.jamatkhanas.join(","))
+      formDataObj.append("chkCommittee", formData.jamatkhanas.join(","));
 
       formData.personInfoImages.forEach((file) => {
         formDataObj.append(`images[]`, file);
@@ -255,6 +255,17 @@ const Form = () => {
     "For more information view the Communication Policies for the Council.",
   ];
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 w-full">
+        <div className="h-16 bg-gray-200"></div> {/* Header placeholder */}
+        <main className="md:mx-auto rounded-2xl py-8 px-4">
+          <SkeletonLoader />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 w-full">
       <Header />
@@ -268,7 +279,7 @@ const Form = () => {
             venues={venues}
             portfolioGroups={portfoliogroups}
             // errors={errors}
-          // shouldValidate={shouldValidate}
+            // shouldValidate={shouldValidate}
           />
           {formData.jamatAnnouncement && (
             <JamatAnnouncementSection
@@ -298,3 +309,61 @@ const Form = () => {
 };
 
 export default Form;
+
+const SkeletonLoader = () => (
+  <div className="animate-pulse space-y-8">
+    {/* Header Skeleton */}
+    <div className="h-16 bg-gray-200 rounded"></div>
+
+    {/* Guidelines Skeleton */}
+    <div className="space-y-4">
+      <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="h-4 bg-gray-200 rounded w-full"></div>
+      ))}
+    </div>
+
+    {/* Channels Section Skeleton */}
+    <div className="space-y-4">
+      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="h-12 bg-gray-200 rounded"></div>
+        ))}
+      </div>
+    </div>
+
+    {/* Program Info Section Skeleton */}
+    <div className="space-y-4">
+      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="h-12 bg-gray-200 rounded"></div>
+        ))}
+      </div>
+    </div>
+
+    {/* Jamatkhana Section Skeleton */}
+    <div className="space-y-4">
+      <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="space-y-2">
+            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+            <div className="grid grid-cols-1 gap-2">
+              {[1, 2, 3, 4].map((j) => (
+                <div key={j} className="h-4 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Form Actions Skeleton */}
+    <div className="flex justify-end gap-3">
+      <div className="h-10 bg-gray-200 rounded w-24"></div>
+      <div className="h-10 bg-gray-200 rounded w-24"></div>
+    </div>
+  </div>
+);

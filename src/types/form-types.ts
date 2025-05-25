@@ -1,8 +1,14 @@
 export interface Portfolio {
   id:string;
+  label: string;
   ref_category: string;
   portfolio_list: string;
 }
+export interface PortfolioGroup {
+  ref_category: string;
+  portfolio_list: string;
+}
+
 
 export interface FormDataState {
   channel: string[];
@@ -35,6 +41,7 @@ export interface FormDataState {
   ismailiApp: boolean;
   socialMedia: boolean;
   other: boolean;
+  
   // venues: string[];
   // portfoliogroups: Portfolio[];
   // jamatkhanasOpptions: string[];

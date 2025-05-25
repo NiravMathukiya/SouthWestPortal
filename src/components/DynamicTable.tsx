@@ -72,8 +72,8 @@ function DynamicTable<T>({
     <div className="overflow-x-auto w-full rounded border border-gray-200">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
+          {table.getHeaderGroups().map((headerGroup, index) => (
+            <tr key={index}>
               {setSelectedIds && (
                 <th className="w-12 px-3 py-2 text-left">
                   <input
@@ -88,9 +88,9 @@ function DynamicTable<T>({
                   />
                 </th>
               )}
-              {headerGroup.headers.map((header) => (
+              {headerGroup.headers.map((header, index) => (
                 <th
-                  key={header.id}
+                  key={index}
                   colSpan={header.colSpan}
                   className="px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider select-none"
                 >
@@ -119,14 +119,11 @@ function DynamicTable<T>({
               </td>
             </tr>
           )}
-          {table.getRowModel().rows.map((row) => {
+          {table.getRowModel().rows.map((row, index) => {
             const rowId = getRowId(row.original);
             const isSelected = selectedIds.includes(rowId);
             return (
-              <tr
-                key={row.id}
-                className={isSelected ? "bg-blue-50" : undefined}
-              >
+              <tr key={index} className={isSelected ? "bg-blue-50" : undefined}>
                 {setSelectedIds && (
                   <td className="w-12 px-3 py-2">
                     <input
@@ -138,9 +135,9 @@ function DynamicTable<T>({
                     />
                   </td>
                 )}
-                {row.getVisibleCells().map((cell) => (
+                {row.getVisibleCells().map((cell, index) => (
                   <td
-                    key={cell.id}
+                    key={index}
                     className="px-3 py-2 whitespace-nowrap text-sm text-gray-700"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

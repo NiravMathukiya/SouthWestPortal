@@ -202,7 +202,7 @@ export default function LoginForm() {
         </div>
       </form>
 
-      <div className="mt-8 text-center">
+      {/* <div className="mt-8 text-center">
         <p className="text-sm text-gray-600">
           Don&apos;t have an account?{" "}
           <Link
@@ -212,7 +212,7 @@ export default function LoginForm() {
             Register here
           </Link>
         </p>
-      </div>
+      </div> */}
     </div>
   );
 }
