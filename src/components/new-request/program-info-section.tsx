@@ -385,7 +385,7 @@ const ProgramInfoSection: React.FC<ProgramInfoSectionProps> = ({
               <input
                 type="checkbox"
                 id={venue}
-                checked={formData.programVenue.includes(venue)}
+                checked={formData?.programVenue?.includes(venue)}
                 onChange={(e) => {
                   if (e.target.checked) {
                     setFormData((prev) => ({
@@ -419,7 +419,7 @@ const ProgramInfoSection: React.FC<ProgramInfoSectionProps> = ({
             <input
               type="checkbox"
               id="addOther"
-              checked={formData.programVenue.some((v) => !venues.includes(v))}
+              checked={formData?.programVenue?.some((v) => !venues.includes(v))}
               onChange={(e) => {
                 if (!e.target.checked) {
                   setFormData((prev) => ({
@@ -440,7 +440,7 @@ const ProgramInfoSection: React.FC<ProgramInfoSectionProps> = ({
             </label>
           </div>
 
-          {formData.programVenue.some((v) => !venues.includes(v)) && (
+          {formData?.programVenue?.some((v) => !venues?.includes(v)) && (
             <div className="ml-6 mt-2 flex items-center">
               <input
                 type="text"

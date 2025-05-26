@@ -26,6 +26,7 @@ const statusOptions = [
 const FilterComponent: React.FC<FilterProps> = ({
   isFilterOpen,
   onSubmitFilter,
+  initialValues
 }) => {
   const [filters, setFilters] = useState({
     portfolioMember: "",
@@ -40,6 +41,17 @@ const FilterComponent: React.FC<FilterProps> = ({
   const [portfoliogroups, setPortfoliogroups] = useState<Portfolio[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    if (initialValues) {
+      setFilters(prev => ({
+        ...prev,
+        ...initialValues,
+        // Ensure Jamatkhanas is always an array
+        Jamatkhanas: initialValues.Jamatkhanas || []
+      }));
+    }
+  }, [initialValues]);
 
   useEffect(() => {
     const fetchAnnouncementData = async () => {
@@ -148,28 +160,28 @@ const FilterComponent: React.FC<FilterProps> = ({
   };
 
   // Handle form submission
-  // const handleSubmit = () => {
-  //   // Ensure Jamatkhanas is always an array of strings
-  //   const submissionData = {
-  //     ...filters,
-  //     Jamatkhanas: Array.isArray(filters.Jamatkhanas)
-  //       ? filters.Jamatkhanas
-  //       : [filters.Jamatkhanas],
-  //   };
-  //   onSubmitFilter(submissionData);
-  // };
+  const handleSubmit = () => {
+    // Ensure Jamatkhanas is always an array of strings
+    const submissionData = {
+      ...filters,
+      Jamatkhanas: Array.isArray(filters.Jamatkhanas)
+        ? filters.Jamatkhanas
+        : [filters.Jamatkhanas],
+    };
+    onSubmitFilter(submissionData);
+  };
 
   // Render facility checkboxes
   const renderFacilityCheckboxes = () => {
+    // console.log(facilities)
     return facilities.map((group, index) => {
       const addresses = group.booking_address
         .split(",")
         .map((item: string) => {
-          const label = parseFacilityLabel(item);
-          return { id: item.split(":")[0].trim(), label };
+          // const label = parseFacilityLabel(item);
+          return { id: item.split(":")[0].trim(), label: item.split(":")[1].trim() };
         })
         .filter(({ label }) => label); // Filter out invalid entries
-
       return (
         <div key={index} className="mb-6">
           <div className="flex justify-between items-center mb-2">
@@ -197,23 +209,28 @@ const FilterComponent: React.FC<FilterProps> = ({
 
           <div className="border border-gray-300 rounded p-3">
             <div className="grid grid-cols-2 gap-2">
-              {addresses.map(({ id, label }) => (
-                <div key={id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id={`jamatkhanas-${id}`}
-                    className="cursor-pointer"
-                    checked={filters.Jamatkhanas.includes(label)}
-                    onChange={() => toggleJamatkhana(label)}
-                  />
-                  <label
-                    htmlFor={`jamatkhanas-${id}`}
-                    className="cursor-pointer text-sm"
-                  >
-                    {label}
-                  </label>
-                </div>
-              ))}
+
+              {addresses.map(({ id, label }) => {
+                // console.log(id, "shujdxnlks", label)
+                return (
+
+                  <div key={id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={`jamatkhanas-${id}`}
+                      className="cursor-pointer"
+                      checked={filters.Jamatkhanas.includes(label)}
+                      onChange={() => toggleJamatkhana(label)}
+                    />
+                    <label
+                      htmlFor={`jamatkhanas-${id}`}
+                      className="cursor-pointer text-sm"
+                    >
+                      {label}
+                    </label>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>
@@ -223,9 +240,8 @@ const FilterComponent: React.FC<FilterProps> = ({
 
   return (
     <div
-      className={`border-t border-gray-200 transition-all duration-300 ${
-        isFilterOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-      }`}
+      className={`border-t border-gray-200 transition-all duration-300 ${isFilterOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+        }`}
     >
       <div className="p-4 bg-gray-50">
         <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
@@ -356,7 +372,7 @@ const FilterComponent: React.FC<FilterProps> = ({
                 <span className="text-sm">
                   {filters.status
                     ? statusOptions.find((o) => o.value === filters.status)
-                        ?.label
+                      ?.label
                     : "Select status..."}
                 </span>
                 <ChevronDown size={16} />
@@ -421,7 +437,7 @@ const FilterComponent: React.FC<FilterProps> = ({
 
           <button
             className="px-4 py-2 border rounded-md text-sm bg-blue-600 text-white hover:bg-blue-700"
-            onClick={() => onSubmitFilter(filters)}
+            onClick={() => handleSubmit()}
           >
             Apply Filters
           </button>

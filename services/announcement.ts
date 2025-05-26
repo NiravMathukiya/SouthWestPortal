@@ -370,7 +370,11 @@ export function parseFilters(searchParams: URLSearchParams) {
   const filter_chkCommittee = searchParams.get("filter_chkCommittee");
   console.log(filter_chkCommittee,"filter_chkCommitteefilter_chkCommitteefilter_chkCommitteefilter_chkCommittee")
   if (filter_chkCommittee) {
-    const committees = filter_chkCommittee.split(",");
+    const data = filter_chkCommittee.split(',');
+    const committees = data.map((item)=>{
+        return item.replace(/\s+/g, "");
+    })
+    // const committees = filter_chkCommittee.split(",");
     where.AND = committees.map((committee) => ({
       committee: {
         contains: committee, // Assumes `committee` is a CSV string field

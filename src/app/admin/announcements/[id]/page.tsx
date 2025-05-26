@@ -310,32 +310,32 @@ const Form = ({ params }: { params: { id: string } }) => {
           }
 
           // Pad with leading zeros
-          const formattedHours = hours?.toString().padStart(2, "0");
-          const formattedMinutes = minutes?.toString().padStart(2, "0");
+          const formattedHours = hours?.toString()?.padStart(2, "0");
+          const formattedMinutes = minutes?.toString()?.padStart(2, "0");
 
           return `${formattedHours}:${formattedMinutes}`;
         }
 
         setFormData((prev) => ({
           ...prev,
-          submmitby: data.SubmittedBy || "",
-          phoneno: data.contact || "",
-          email: data.email || "",
-          nameOfPrograme: data.program || "",
-          dateOfProhgram: data.dateprogram || "",
-          timeofProgram: data.timeprogram
-            ? convertTo24Hour(data.timeprogram)
+          submmitby: data?.SubmittedBy || "",
+          phoneno: data?.contact || "",
+          email: data?.email || "",
+          nameOfPrograme: data?.program || "",
+          dateOfProhgram: data?.dateprogram || "",
+          timeofProgram: data?.timeprogram
+            ? convertTo24Hour(data?.timeprogram)
             : "",
-          numberofAttendences: data.chkAttendees || 0,
-          InsertRegistertionLink: data.txtRegistrationLink || "",
-          isReistrerstionLink: data.registration === 1,
-          ProgramVenueLocation: data.venue || "",
-          jamatAnnouncement: data.channel_requested.includes("announcement"),
-          ismailiApp: data.channel_requested.includes("ismaili-app"),
-          ismailiInsight: data.channel_requested.includes("ismaili-insight"),
-          socialMedia: data.channel_requested.includes("social-media"),
-          programVenue: data.venue.split(","),
-          jamatkhanas: data.committee.split(","),
+          numberofAttendences: data?.chkAttendees || 0,
+          InsertRegistertionLink: data?.txtRegistrationLink || "",
+          isReistrerstionLink: data?.registration === 1,
+          ProgramVenueLocation: data?.venue || "",
+          jamatAnnouncement: data?.channel_requested?.includes("announcement"),
+          ismailiApp: data?.channel_requested?.includes("ismaili-app"),
+          ismailiInsight: data?.channel_requested?.includes("ismaili-insight"),
+          socialMedia: data?.channel_requested?.includes("social-media"),
+          programVenue: data?.venue?.split(","),
+          jamatkhanas: data?.committee?.split(",") ,
 
           ismailiStartDate:
             insightData?.ismaili_insight_txtDate1?.split("T")[0] || "",
@@ -357,9 +357,9 @@ const Form = ({ params }: { params: { id: string } }) => {
           channel: data.channels,
           portfolio: {
             id: portfolioId,
-            ref_category: data.ref_portfolio_cat || "",
-            portfolio_list: data.portfolio || "",
-            label: data.portfolio || "",
+            ref_category: data?.ref_portfolio_cat || "",
+            portfolio_list: data?.portfolio || "",
+            label: data?.portfolio || "",
           },
         }));
       } catch (error) {
@@ -386,11 +386,11 @@ const Form = ({ params }: { params: { id: string } }) => {
 
       // Only proceed if at least one channel is selected
       if (
-        formData.jamatAnnouncement ||
-        formData.ismailiInsight ||
-        formData.ismailiApp ||
-        formData.socialMedia ||
-        formData.other
+        formData?.jamatAnnouncement ||
+        formData?.ismailiInsight ||
+        formData?.ismailiApp ||
+        formData?.socialMedia ||
+        formData?.other
       ) {
         formDataObj.append("txtSubmittedBy", formData.submmitby || "");
         formDataObj.append("txtContact", formData.phoneno || "");

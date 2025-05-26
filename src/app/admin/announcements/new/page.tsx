@@ -223,9 +223,17 @@ const Form = () => {
 
       formDataObj.append("chkCommittee", formData.jamatkhanas.join(","));
 
-      formData.personInfoImages.forEach((file) => {
-        formDataObj.append(`images[]`, file);
-      });
+      if (formData.personInfoImages.length > 1) {
+
+        formData.personInfoImages.forEach((file) => {
+
+
+          formDataObj.append(`images`, file);
+        });
+      }
+      else {
+        formDataObj.append(`images`, formData.personInfoImages[0]);
+      }
       formData.IsmailiImages.forEach((file) => {
         formDataObj.append("IsmailiImages[]", file);
       });
@@ -278,21 +286,21 @@ const Form = () => {
             setFormData={setFormData}
             venues={venues}
             portfolioGroups={portfoliogroups}
-            // errors={errors}
-            // shouldValidate={shouldValidate}
+          // errors={errors}
+          // shouldValidate={shouldValidate}
           />
           {formData.jamatAnnouncement && (
             <JamatAnnouncementSection
               formData={formData}
               setFormData={setFormData}
-              // errors={errors}
+            // errors={errors}
             />
           )}
           {formData?.ismailiInsight && (
             <NewsletterSection
               formData={formData}
               setFormData={setFormData}
-              // errors={errors}
+            // errors={errors}
             />
           )}
           {/* 1 */}

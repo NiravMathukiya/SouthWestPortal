@@ -66,6 +66,7 @@ const CommunicationRequest: React.FC = () => {
       const params = new URLSearchParams();
       params.append("page", page.toString());
       params.append("limit", itemsPerPage.toString());
+      // console.log(filters?.Jamatkhanas?.map((item) => (item.split(" ").length > 1 ? item.split(" ").join("") : item))?.join(","));
       // console.log(filters);
 
       // Add filter parameters
@@ -91,7 +92,7 @@ const CommunicationRequest: React.FC = () => {
         params.append("filter_to_dateprogram", filters.programDateTo);
       }
       if (filters.Jamatkhanas && filters.Jamatkhanas.length > 0) {
-        params.append("filter_chkCommittee", filters.Jamatkhanas[0]);
+        params.append("filter_chkCommittee", filters?.Jamatkhanas?.map((item) => (item.split(" ").length > 1 ? item.split(" ").join("") : item))?.join(","));
       }
 
       const res = await axios.get(`/api/announcement?${params.toString()}`);
@@ -286,9 +287,8 @@ const CommunicationRequest: React.FC = () => {
         // }
         return (
           <span
-            className={`px-2 py-1 rounded text-sm ${
-              status ? "bg-green-500 text-green-900" : "bg-red-500 text-black"
-            }`}
+            className={`px-2 py-1 rounded text-sm ${status ? "bg-green-500 text-green-900" : "bg-red-500 text-black"
+              }`}
           >
             {status ? "Enable" : "Disable"}
           </span>
@@ -316,7 +316,7 @@ const CommunicationRequest: React.FC = () => {
     //     };
 
     //     return (
-         
+
     //     );
     //   },
     // },
@@ -325,10 +325,6 @@ const CommunicationRequest: React.FC = () => {
       header: "Edit",
       cell: (info) => {
         const files = info.row.original.files;
-
-        if (!files || files.length === 0) {
-          return null;
-        }
 
         const handleDownload = (file: FileData) => {
           const downloadUrl = `/uploads/${file.new_filename}`;
@@ -341,35 +337,32 @@ const CommunicationRequest: React.FC = () => {
         };
 
         return (
-          <div className="flex gap-2 ">
-            {/* {data.length > 0 && <Paperclip></Paperclip>} */}
-            <div className="flex items-center">
-            <Paperclip
-              className="h-5 w-5 text-gray-500 cursor-pointer"
-              onClick={() => handleDownload(files[0])}
-            />
-            {files.length > 1 && (
-              <span className="ml-1 text-xs">+{files.length - 1}</span>
+          <div className="flex gap-2 items-center">
+            {/* Show paperclip only if there are files */}
+            {files?.length > 0 && (
+              <div className="flex items-center">
+                <Paperclip
+                  className="h-5 w-5 text-gray-500 cursor-pointer"
+                  onClick={() => handleDownload(files[0])}
+                />
+                {files.length > 1 && (
+                  <span className="ml-1 text-xs">+{files.length - 1}</span>
+                )}
+              </div>
             )}
-          </div>
+
+            {/* Always show edit button */}
             <button
-              className="text-yellow-600 underline p-1 bg-blue-500 hover:bg-blue-600 rounded"
+              className="text-yellow-600 p-1 bg-blue-500 hover:bg-blue-600 rounded"
               onClick={() => {
-                // console.log(Number(info.row.id))
                 router.push(`/admin/announcements/${Number(info.row.id)}`);
               }}
-              aria-label="Delete record"
+              aria-label="Edit record"
             >
               <Pencil className="text-white w-5 h-5" />
             </button>
           </div>
         );
-        // <Link
-        //   href={`/admin/announcements/${info.getValue()}`}
-        //   className="text-yellow-600 underline "
-        // >
-        //   <Pencil className=" w-5 h-5 p-1 rounded bg-yellow-500 scale-150" />
-        // </Link>
       },
     },
     {
