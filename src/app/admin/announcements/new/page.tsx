@@ -156,7 +156,7 @@ const Form = () => {
       formDataObj.append("txtEmail", formData.email);
       formDataObj.append("txtProgram", formData.nameOfPrograme);
       formDataObj.append("txtDateProgram", formData.dateOfProhgram);
-      formDataObj.append("txtDateProgram", formData.timeofProgram);
+      formDataObj.append("txtTimeProgram", formData.timeofProgram);
       formDataObj.append(
         "chkAttendees",
         formData.numberofAttendences.toString()
